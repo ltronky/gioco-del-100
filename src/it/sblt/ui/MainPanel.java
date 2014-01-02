@@ -63,6 +63,7 @@ public class MainPanel extends JFrame{
 			for(int y=0; y<length; y++){
 				for(int x=0; x<width; x++){
 					panelsGrid[x][y] = new JPanel();
+					panelsGrid[x][y].setBackground(Color.LIGHT_GRAY);
 					JLabel l = new JLabel("");
 					panelsGrid[x][y].add(l);
 					gridList.add(y*10+x, l);
@@ -252,5 +253,19 @@ public class MainPanel extends JFrame{
 
 	public void printNumber(String name, int nr) {
 		grid.writeCell(nr, name);
+		for (int i = 0; i < 10; i++) {
+			for (int j = 0; j < 10; j++) {
+				setBackgroundCell(i,j, Color.LIGHT_GRAY);
+			}
+		}
+	}
+
+	public void setAvailableCell(int nr) {
+		setBackgroundCell(nr%10, nr/10, Color.GREEN);
+	}
+
+	public void setSelectedCell(int nr) {
+		setBackgroundCell(nr%10, nr/10, Color.YELLOW);
+		
 	}
 }
