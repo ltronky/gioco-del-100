@@ -6,8 +6,8 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -53,7 +53,7 @@ public class MainPanel extends JFrame{
 
 	class PanelGrid extends JPanel {
 		private static final long serialVersionUID = 7093635227461022241L;
-		private Map<Integer, JLabel> gridMap = new HashMap<Integer, JLabel>();
+		private List<JLabel> gridList = new ArrayList<JLabel>();
 		
 		public PanelGrid(int width, int length, JPanel panel){
 			panel.setLayout(new GridLayout(width,length));
@@ -65,7 +65,7 @@ public class MainPanel extends JFrame{
 					panelsGrid[x][y] = new JPanel();
 					JLabel l = new JLabel("");
 					panelsGrid[x][y].add(l);
-					gridMap.put(new Integer(x*10+y), l);
+					gridList.add(y*10+x, l);
 					panelsGrid[x][y].setBorder(selectBorder);
 					panelsGrid[x][y].setPreferredSize(new Dimension(40,40));
 					panel.add(panelsGrid[x][y]);
@@ -81,8 +81,8 @@ public class MainPanel extends JFrame{
 			panelsGrid[x][y].setBackground(c);
 		}
 
-		public void writeCell(int x, int y, String s) {
-			gridMap.get(new Integer(x*10+y)).setText(s);
+		public void writeCell(int x, String s) {
+			gridList.get(x).setText(s);
 		}
 
 	}
@@ -250,7 +250,7 @@ public class MainPanel extends JFrame{
 	}
 	// ******** main.setBackgroundCell(0, 0, Color.yellow);
 
-	public void writeNumCell(int x, int y, String str) {
-		grid.writeCell(x, y, str);	
+	public void printNumber(String name, int nr) {
+		grid.writeCell(nr, name);
 	}
 }
