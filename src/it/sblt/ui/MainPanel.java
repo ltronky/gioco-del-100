@@ -3,10 +3,11 @@ package it.sblt.ui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -15,8 +16,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.JTextArea;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 
@@ -28,11 +28,8 @@ public class MainPanel extends JFrame{
 
 	private JPanel buttonPanel;
 	private JPanel backGridPanel;
-	//	private JPanel gridPanel;
-	//	private JPanel statusPanel;
-	private JPanel logPanel;
 
-	private JScrollPane logSPanel;
+	private JTextArea logger;
 
 	private Box verticalStatusBox;
 	private Box verticalLogPanel;
@@ -45,25 +42,30 @@ public class MainPanel extends JFrame{
 	private JLabel nextNumFieldLabel;
 	private JLabel statusLabel;
 	private JLabel statusFieldLabel; 
-	private JLabel titleLogLabel;
 
 	//private Graphics graphic;
 
-	private static PanelGrid grid;
+	private PanelGrid grid;
 
 	JPanel[][] panelsGrid;
 
 	Border selectBorder = BorderFactory.createLineBorder(Color.black);
 
 	class PanelGrid extends JPanel {
-
+		private static final long serialVersionUID = 7093635227461022241L;
+		private Map<Integer, JLabel> gridMap = new HashMap<Integer, JLabel>();
+		
 		public PanelGrid(int width, int length, JPanel panel){
 			panel.setLayout(new GridLayout(width,length));
 			panelsGrid=new JPanel[width][length];
+
+
 			for(int y=0; y<length; y++){
 				for(int x=0; x<width; x++){
 					panelsGrid[x][y] = new JPanel();
-					//panelsGrid[x][y].add(new JLabel("100"));
+					JLabel l = new JLabel("");
+					panelsGrid[x][y].add(l);
+					gridMap.put(new Integer(x*10+y), l);
 					panelsGrid[x][y].setBorder(selectBorder);
 					panelsGrid[x][y].setPreferredSize(new Dimension(40,40));
 					panel.add(panelsGrid[x][y]);
@@ -79,21 +81,22 @@ public class MainPanel extends JFrame{
 			panelsGrid[x][y].setBackground(c);
 		}
 
-		public void writeCell(int x, int y, String app) {
-			panelsGrid[x][y].add(new JLabel(app));
+		public void writeCell(int x, int y, String s) {
+			gridMap.get(new Integer(x*10+y)).setText(s);
 		}
 
 	}
 
-	public MainPanel() {	
-		EventQueue.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-				} 
-				catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
-				} 
+	public MainPanel() {
+		main = this;
+//		EventQueue.invokeLater(new Runnable() {
+//			@Override
+//			public void run() {
+//				try {
+//					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+//				} 
+//				catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
+//				} 
 				main.setTitle("Gioco del 100");
 				main.setResizable(false);
 
@@ -110,32 +113,37 @@ public class MainPanel extends JFrame{
 				main.setMaximumSize(new Dimension(800,800));
 				main.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-				// ********** main.grid.writeCell(1, 1, "1");
-			} 
-		});
+			
+//			} 
+//		});
 	}
 
 	private void generateLogPanel() {
 
-		logPanel = new JPanel();
+		JPanel logPanel = new JPanel();
 		logPanel.setBackground(Color.gray);
 		logPanel.setBorder(new EmptyBorder(0, 0, 30, 0));
 
-		logSPanel = new JScrollPane();
-		logSPanel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		logSPanel.setPreferredSize(new Dimension(570,200));
-		
 		verticalLogPanel = Box.createVerticalBox();
 		verticalLogPanel.setPreferredSize(new Dimension(570,200));
-
-		titleLogLabel = new JLabel("Monitoraggio vincoli");
+		
+		JLabel titleLogLabel = new JLabel("Monitoraggio vincoli");
 		titleLogLabel.setBorder(new EmptyBorder(10, 0, 10, 0));
+		
+		logger = new JTextArea();
+		logger.setMinimumSize(new Dimension(570,200));
+		logger.setEditable(false);
 
+		JScrollPane logSPanel = new JScrollPane(logger);
+		logSPanel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		logSPanel.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		logSPanel.setPreferredSize(new Dimension(570,200));
+		
 		verticalLogPanel.add(titleLogLabel);
-		verticalLogPanel.add(logSPanel);	
-
+		verticalLogPanel.add(logSPanel);
+	
 		logPanel.add(verticalLogPanel);
-
+		
 		add(logPanel, BorderLayout.SOUTH);
 	}
 
@@ -208,7 +216,9 @@ public class MainPanel extends JFrame{
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
+				
+				logger.append("AAA\n");
+				verticalLogPanel.scrollRectToVisible(logger.getBounds());
 			}
 		});
 
