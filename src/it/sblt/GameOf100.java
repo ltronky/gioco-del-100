@@ -13,8 +13,13 @@ import solver.variables.VariableFactory;
 
 
 public class GameOf100 {
-
-	MainPanel ui = new MainPanel();
+	
+	private static final long FAIL_BACKTRACK_TIME = 20;
+	private static final long POST_PAINT_CELL_TIME = 4;//400
+	private static final long WAIT_BEFORE_FIND_SOLUTION_TIME = 7;//700
+	private static final long WAIT_BEFORE_EXECUTE_SUBPROBLEM_TIME = 10;//1000
+	
+	private MainPanel ui = new MainPanel();
 
 	public GameOf100() { 
 		Solver solver = new Solver("100_Game");
@@ -24,6 +29,9 @@ public class GameOf100 {
 		ui.printNumber("1", 0);
 		if (executeSubProblem(variableList, 0)) {
 			System.out.println("FUZIONA!!!!");
+			ui.setStatusFieldLabel("Stop : TERMINATO");
+		} else {
+			ui.setStatusFieldLabel("Stop : FALLITO");
 		}
 	}
 
@@ -54,7 +62,7 @@ public class GameOf100 {
 			solver.post(IntConstraintFactory.alldifferent(variableList, "BC"));//CONSISTENCY := AC, BoundConsistency, weak_BC, NEQS, DEFAULT
 
 
-			System.out.println("CANE " + availablePositions.toString());
+			System.out.println("Available Positions " + availablePositions.toString());
 			for (int i = 1; i < 100; i++) {
 				boolean test = true;
 				for (int j = 0; j < availablePositions.size() && test; j++) {
@@ -68,12 +76,7 @@ public class GameOf100 {
 						}
 						if (test1){
 							ui.setAvailableCell(i);
-							try {
-								Thread.sleep(400);
-							} catch (InterruptedException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
+							SLEEP(POST_PAINT_CELL_TIME);
 						}			
 					}
 				}
@@ -83,62 +86,55 @@ public class GameOf100 {
 				}
 			}
 
-			try {
-				Thread.sleep(700);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			SLEEP(WAIT_BEFORE_FIND_SOLUTION_TIME);
 
-			//			solver.set(IntStrategyFactory.inputOrder_InDomainMin(variableList)); 
+//			solver.set(IntStrategyFactory.inputOrder_InDomainMin(variableList)); 
 
 			boolean result = solver.findSolution();
 
 			if (result && lastIndex+1<100) {
 				
 				ui.setSelectedCell(variableList[lastIndex+1].getValue());
-				try {
-					Thread.sleep(400);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				SLEEP(POST_PAINT_CELL_TIME);
 				ui.printNumber(variableList[lastIndex+1].getName(), variableList[lastIndex+1].getValue());
-				Integer app = (new Integer(lastIndex))+3;
-				ui.setNextNumFieldLabel(app.toString());
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				ui.setNextNumFieldLabel(String.valueOf(((new Integer(lastIndex))+3)));
+				SLEEP(WAIT_BEFORE_EXECUTE_SUBPROBLEM_TIME);
+				
+				
+				if (!executeSubProblem(variableList, lastIndex+1)) {
+					ui.setFailCell(variableList[lastIndex+1].getValue());
+					ui.printNumber("", variableList[lastIndex+1].getValue());
+					for (int i = 0; i < availablePositions.size(); i++) {
+						if (variableList[lastIndex+1].getValue() == availablePositions.get(i).intValue()) {
+							availablePositions.remove(i);
+						}
+					}
+				} else {
+					return true;
 				}
-				executeSubProblem(variableList, lastIndex+1);
-
 			} else {
 				if (result) {
 					System.out.println("PROBLEMA RISOLTO");
 					return true;
 				} else {
 					System.out.println("ERRORE");
-					ui.setStatusFieldLabel("Stop : ERRORE");
-					break;
-					//					for (int i = 0; i < availablePositions.size(); i++) {
-					//						if (variableList[lastIndex+1].getValue() == availablePositions.get(i).intValue()) {
-					//							availablePositions.remove(i);
-					//						}
-					//					}
+					ui.setStatusFieldLabel("Stop : BACKTRACK");
+					return false;
 				}
 			}
-			try {
-				Thread.sleep(10000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			SLEEP(FAIL_BACKTRACK_TIME);
 		}//END WHILE
 		return false;
 	}
 
+	private void SLEEP(long time){
+		try {
+			Thread.sleep(time);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public static void main(String[] args) {
 		new GameOf100();
 

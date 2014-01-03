@@ -329,4 +329,9 @@ public class MainPanel extends JFrame{
 		setBackgroundCell(nr%10, nr/10, Color.YELLOW);
 
 	}
+
+	public void setFailCell(int nr) {
+		setBackgroundCell(nr%10, nr/10, Color.RED);
+
+	}
 }
