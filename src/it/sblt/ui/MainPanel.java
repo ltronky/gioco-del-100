@@ -23,6 +23,7 @@ import javax.swing.border.EmptyBorder;
 
 
 public class MainPanel extends JFrame{
+	private static final long serialVersionUID = 1L;
 
 	private MainPanel main;
 
@@ -31,7 +32,6 @@ public class MainPanel extends JFrame{
 
 	private JTextArea logger;
 
-	private Box verticalStatusBox;
 	private Box verticalLogPanel;
 
 	private JButton restartBtn;
@@ -43,8 +43,6 @@ public class MainPanel extends JFrame{
 	private JLabel statusLabel;
 	private JLabel statusFieldLabel; 
 
-	//private Graphics graphic;
-
 	private PanelGrid grid;
 
 	JPanel[][] panelsGrid;
@@ -54,7 +52,7 @@ public class MainPanel extends JFrame{
 	class PanelGrid extends JPanel {
 		private static final long serialVersionUID = 7093635227461022241L;
 		private List<JLabel> gridList = new ArrayList<JLabel>();
-		
+
 		public PanelGrid(int width, int length, JPanel panel){
 			panel.setLayout(new GridLayout(width,length));
 			panelsGrid=new JPanel[width][length];
@@ -90,33 +88,33 @@ public class MainPanel extends JFrame{
 
 	public MainPanel() {
 		main = this;
-//		EventQueue.invokeLater(new Runnable() {
-//			@Override
-//			public void run() {
-//				try {
-//					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-//				} 
-//				catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
-//				} 
-				main.setTitle("Gioco del 100");
-				main.setResizable(false);
+		//		EventQueue.invokeLater(new Runnable() {
+		//			@Override
+		//			public void run() {
+		//				try {
+		//					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		//				} 
+		//				catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
+		//				} 
+		main.setTitle("Gioco del 100");
+		main.setResizable(false);
 
-				generateButtonPanel();
+		generateButtonPanel();
 
-				generateGridPanel();
+		generateGridPanel();
 
-				generateStatusPanel();
+		generateStatusPanel();
 
-				generateLogPanel();
+		generateLogPanel();
 
-				pack();
-				setVisible(true);
-				main.setMaximumSize(new Dimension(800,800));
-				main.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		pack();
+		setVisible(true);
+		main.setMaximumSize(new Dimension(800,800));
+		main.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-			
-//			} 
-//		});
+
+		//			} 
+		//		});
 	}
 
 	private void generateLogPanel() {
@@ -127,10 +125,10 @@ public class MainPanel extends JFrame{
 
 		verticalLogPanel = Box.createVerticalBox();
 		verticalLogPanel.setPreferredSize(new Dimension(570,200));
-		
+
 		JLabel titleLogLabel = new JLabel("Monitoraggio vincoli");
 		titleLogLabel.setBorder(new EmptyBorder(10, 0, 10, 0));
-		
+
 		logger = new JTextArea();
 		logger.setMinimumSize(new Dimension(570,200));
 		logger.setEditable(false);
@@ -139,43 +137,106 @@ public class MainPanel extends JFrame{
 		logSPanel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		logSPanel.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		logSPanel.setPreferredSize(new Dimension(570,200));
-		
+
 		verticalLogPanel.add(titleLogLabel);
 		verticalLogPanel.add(logSPanel);
-	
+
 		logPanel.add(verticalLogPanel);
-		
+
 		add(logPanel, BorderLayout.SOUTH);
 	}
 
 
 	private void generateStatusPanel() {
 
-		verticalStatusBox = Box.createVerticalBox();
-		verticalStatusBox.add(Box.createVerticalGlue());
-		verticalStatusBox.setPreferredSize(new Dimension(180,300));
-		verticalStatusBox.setBorder(BorderFactory.createEmptyBorder(0, 20, 30, 0));
+		JPanel statusPanel = new JPanel();
+		statusPanel.setBorder(BorderFactory.createEmptyBorder(0, 20, 30, 0));
+		statusPanel.setSize(new Dimension(100,300));
 
+		
+		Box verticalBox1 = Box.createVerticalBox();
+		verticalBox1.add(Box.createVerticalStrut(50));
+		
+		
+		Box horizontalBox1 = Box.createHorizontalBox();
+		horizontalBox1.add(Box.createHorizontalGlue());
+		horizontalBox1.setBorder(BorderFactory.createEmptyBorder(20, 0, 0, 0));
+		
 		statusLabel = new JLabel("Stato di gioco");
-		statusLabel.setBorder(BorderFactory.createEmptyBorder(20, 0, 5, 0));
+		statusLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 32));
 
 		statusFieldLabel = new JLabel("In esecuzione");
-		statusFieldLabel.setPreferredSize(new Dimension(160,40));
-		statusFieldLabel.setBorder(BorderFactory.createMatteBorder(1, 5, 1, 1, Color.white));
+		statusFieldLabel.setPreferredSize(new Dimension(100,40));
+		statusFieldLabel.setBorder(BorderFactory.createMatteBorder(1, 6, 1, 1, Color.LIGHT_GRAY));
+		
+		horizontalBox1.add(statusLabel);
+		horizontalBox1.add(statusFieldLabel);
 
+		
+		Box horizontalBox2 = Box.createHorizontalBox();
+		horizontalBox2.add(Box.createHorizontalGlue());
+		
 		nextNumLabel = new JLabel("Prossimo numero");
-		nextNumLabel.setBorder(BorderFactory.createEmptyBorder(40, 0, 5, 0));
+		nextNumLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 10));
 
-		nextNumFieldLabel = new JLabel("100");
-		nextNumFieldLabel.setPreferredSize(new Dimension(160,40));
-		nextNumFieldLabel.setBorder(BorderFactory.createMatteBorder(1, 5, 1, 1, Color.white));
+		nextNumFieldLabel = new JLabel("2");
+		nextNumFieldLabel.setPreferredSize(new Dimension(100,40));
+		nextNumFieldLabel.setBorder(BorderFactory.createMatteBorder(1, 6, 1, 1, Color.LIGHT_GRAY));
 
-		verticalStatusBox.add(statusLabel);
-		verticalStatusBox.add(statusFieldLabel);
-		verticalStatusBox.add(nextNumLabel);
-		verticalStatusBox.add(nextNumFieldLabel);
+		horizontalBox2.add(nextNumLabel);
+		horizontalBox2.add(nextNumFieldLabel);
+		
+		verticalBox1.add(horizontalBox1);
+		verticalBox1.add(horizontalBox2);
+		
+		
+		JPanel legendPanel = new JPanel();
+		legendPanel.setBorder(BorderFactory.createEmptyBorder(150, 0, 0, 0));
 
-		add(verticalStatusBox, BorderLayout.EAST);
+		JLabel legendLabel = new JLabel("Legenda");
+		legendLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 50, 0));
+		
+		legendPanel.add(legendLabel);
+		
+		Box verticalBox2 = Box.createVerticalBox();
+		verticalBox2.add(Box.createVerticalStrut(50));
+		
+		Box horizontalBox3 = Box.createHorizontalBox();
+		horizontalBox3.add(Box.createHorizontalGlue());
+
+		JPanel greenPanel = new JPanel();
+		greenPanel.setBackground(Color.GREEN);
+		greenPanel.setMaximumSize(new Dimension(20,20));
+
+		JLabel greenLabel = new JLabel("Caselle possibili");
+		greenLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+		horizontalBox3.add(greenPanel);
+		horizontalBox3.add(greenLabel);
+		
+		Box horizontalBox4 = Box.createHorizontalBox();
+		horizontalBox4.add(Box.createHorizontalGlue());
+
+		JPanel yellowPanel = new JPanel();
+		yellowPanel.setBackground(Color.YELLOW);
+		yellowPanel.setMaximumSize(new Dimension(20,20));
+
+		JLabel yellowLabel = new JLabel("Casella scelta");
+		yellowLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 28));
+
+		horizontalBox4.add(yellowPanel);
+		horizontalBox4.add(yellowLabel);
+		
+		verticalBox2.add(horizontalBox3);
+		verticalBox2.add(horizontalBox4);
+		
+		legendPanel.add(verticalBox2);
+
+		verticalBox1.add(legendPanel);
+
+		statusPanel.add(verticalBox1);
+
+		add(statusPanel, BorderLayout.EAST);
 	}
 
 
@@ -217,7 +278,7 @@ public class MainPanel extends JFrame{
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				
+
 				logger.append("AAA\n");
 				verticalLogPanel.scrollRectToVisible(logger.getBounds());
 			}
@@ -266,6 +327,6 @@ public class MainPanel extends JFrame{
 
 	public void setSelectedCell(int nr) {
 		setBackgroundCell(nr%10, nr/10, Color.YELLOW);
-		
+
 	}
 }
