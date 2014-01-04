@@ -14,12 +14,14 @@ import solver.variables.VariableFactory;
 
 public class GameOf100 {
 	
-	private static final long FAIL_BACKTRACK_TIME = 20;
-	private static final long POST_PAINT_CELL_TIME = 4;//400
-	private static final long WAIT_BEFORE_FIND_SOLUTION_TIME = 7;//700
-	private static final long WAIT_BEFORE_EXECUTE_SUBPROBLEM_TIME = 10;//1000
+	private static final long FAIL_BACKTRACK_TIME = 2000;
+	private static final long POST_PAINT_CELL_TIME = 400;//400
+	private static final long WAIT_BEFORE_FIND_SOLUTION_TIME = 700;//700
+	private static final long WAIT_BEFORE_EXECUTE_SUBPROBLEM_TIME = 1000;//1000
 	
-	private MainPanel ui = new MainPanel();
+	private final int dim = 5;
+	
+	private MainPanel ui = new MainPanel(dim);
 
 	public GameOf100() { 
 		Solver solver = new Solver("100_Game");
@@ -39,14 +41,14 @@ public class GameOf100 {
 
 		int x = old[lastIndex].getValue();
 		ArrayList<Integer> availablePositions = new ArrayList<Integer>();
-		if (				(x + 3)-((x + 3)%10) == x-(x%10)) availablePositions.add(x + 3);
-		if ((x - 3)>0    && (x - 3)-((x - 3)%10) == x-(x%10)) availablePositions.add(x - 3);
-		if ((x + 30)<100 && (x + 30)%10 == x%10) availablePositions.add(x + 30);
-		if ((x - 30)>0   && (x - 30)%10 == x%10) availablePositions.add(x - 30);
-		if (				((x + 18)%100)-((x + 18)%10) == (x + 20)-((x + 20)%10)) availablePositions.add(x + 18);
-		if (				((x + 22)%100)-((x + 22)%10) == (x + 20)-((x + 20)%10)) availablePositions.add(x + 22);
-		if ((x - 18)>0   && ((x - 18)%100)-((x - 18)%10) == (x - 20)-((Math.abs(x - 20))%10)) availablePositions.add(x - 18);
-		if ((x - 22)>0   && ((x - 22)%100)-((x - 22)%10) == (x - 20)-((Math.abs(x - 20))%10)) availablePositions.add(x - 22);
+		if (						(x + 3)-((x + 3)%dim) == x-(x%dim)) availablePositions.add(x + 3);
+		if ((x - 3)>0    		 && (x - 3)-((x - 3)%dim) == x-(x%dim)) availablePositions.add(x - 3);
+		if ((x + 3*dim)<dim*dim  && (x + 3*dim)%dim == x%dim) availablePositions.add(x + 3*dim);
+		if ((x - 3*dim)>0		 && (x - 3*dim)%dim == x%dim) availablePositions.add(x - 3*dim);
+		if (						((x + 2*dim-2)%(dim*dim))-((x + 2*dim-2)%dim) == (x + 2*dim)-((x + 2*dim)%dim)) availablePositions.add(x + 2*dim-2);
+		if (						((x + 2*dim+2)%(dim*dim))-((x + 2*dim+2)%dim) == (x + 2*dim)-((x + 2*dim)%dim)) availablePositions.add(x + 2*dim+2);
+		if ((x - 2*dim-2)>0   	 && ((x - 2*dim-2)%(dim*dim))-((x - 2*dim-2)%dim) == (x - 2*dim)-((Math.abs(x - 2*dim))%dim)) availablePositions.add(x - 2*dim-2);
+		if ((x - 2*dim+2)>0   	 && ((x - 2*dim+2)%(dim*dim))-((x - 2*dim+2)%dim) == (x - 2*dim)-((Math.abs(x - 2*dim))%dim)) availablePositions.add(x - 2*dim+2);
 
 		while (!availablePositions.isEmpty()) {
 			Solver solver = new Solver("subProblem " + (lastIndex+2));
@@ -57,13 +59,13 @@ public class GameOf100 {
 				variableList[i] = VariableFactory.enumerated(old[i].getName(), old[i].getValue(),  old[i].getValue(), solver);
 			}
 
-			variableList[lastIndex+1] = VariableFactory.enumerated(Integer.toString(lastIndex+2), 1, 99, solver);
+			variableList[lastIndex+1] = VariableFactory.enumerated(Integer.toString(lastIndex+2), 1, dim*dim-1, solver);
 
 			solver.post(IntConstraintFactory.alldifferent(variableList, "BC"));//CONSISTENCY := AC, BoundConsistency, weak_BC, NEQS, DEFAULT
 
 
 			System.out.println("Available Positions " + availablePositions.toString());
-			for (int i = 1; i < 100; i++) {
+			for (int i = 1; i < dim*dim; i++) {
 				boolean test = true;
 				for (int j = 0; j < availablePositions.size() && test; j++) {
 					if (availablePositions.get(j) == i){
@@ -92,7 +94,7 @@ public class GameOf100 {
 
 			boolean result = solver.findSolution();
 
-			if (result && lastIndex+1<100) {
+			if (result && lastIndex+1<dim*dim) {
 				
 				ui.setSelectedCell(variableList[lastIndex+1].getValue());
 				SLEEP(POST_PAINT_CELL_TIME);

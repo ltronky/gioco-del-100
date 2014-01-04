@@ -25,8 +25,8 @@ import javax.swing.border.EmptyBorder;
 public class MainPanel extends JFrame{
 	private static final long serialVersionUID = 1L;
 
-	private MainPanel main;
-
+	private int DIMENSION;
+	
 	private JPanel buttonPanel;
 	private JPanel backGridPanel;
 
@@ -64,7 +64,7 @@ public class MainPanel extends JFrame{
 					panelsGrid[x][y].setBackground(Color.LIGHT_GRAY);
 					JLabel l = new JLabel("");
 					panelsGrid[x][y].add(l);
-					gridList.add(y*10+x, l);
+					gridList.add(y*DIMENSION+x, l);
 					panelsGrid[x][y].setBorder(selectBorder);
 					panelsGrid[x][y].setPreferredSize(new Dimension(40,40));
 					panel.add(panelsGrid[x][y]);
@@ -86,8 +86,8 @@ public class MainPanel extends JFrame{
 
 	}
 
-	public MainPanel() {
-		main = this;
+	public MainPanel(int dim) {
+		DIMENSION = dim;
 		//		EventQueue.invokeLater(new Runnable() {
 		//			@Override
 		//			public void run() {
@@ -96,8 +96,8 @@ public class MainPanel extends JFrame{
 		//				} 
 		//				catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
 		//				} 
-		main.setTitle("Gioco del 100");
-		main.setResizable(false);
+		setTitle("Gioco del 100");
+		setResizable(false);
 
 		generateButtonPanel();
 
@@ -109,8 +109,8 @@ public class MainPanel extends JFrame{
 
 		pack();
 		setVisible(true);
-		main.setMaximumSize(new Dimension(800,800));
-		main.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setMaximumSize(new Dimension(800,800));
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 
 		//			} 
@@ -244,7 +244,7 @@ public class MainPanel extends JFrame{
 
 		backGridPanel = new JPanel();
 
-		grid = new PanelGrid(10,10,backGridPanel);
+		grid = new PanelGrid(DIMENSION,DIMENSION,backGridPanel);
 
 		backGridPanel.setBorder(BorderFactory.createEmptyBorder(0, 20, 30, 0));
 		add(backGridPanel, BorderLayout.WEST);
@@ -292,11 +292,6 @@ public class MainPanel extends JFrame{
 
 	}
 
-
-	public void setMainPanel(MainPanel m) {
-		main = m;
-	}
-
 	public void setStatusFieldLabel(String str) {
 		statusFieldLabel.setText(str);
 	}
@@ -314,24 +309,24 @@ public class MainPanel extends JFrame{
 
 	public void printNumber(String name, int nr) {
 		grid.writeCell(nr, name);
-		for (int i = 0; i < 10; i++) {
-			for (int j = 0; j < 10; j++) {
+		for (int i = 0; i < DIMENSION; i++) {
+			for (int j = 0; j < DIMENSION; j++) {
 				setBackgroundCell(i,j, Color.LIGHT_GRAY);
 			}
 		}
 	}
 
 	public void setAvailableCell(int nr) {
-		setBackgroundCell(nr%10, nr/10, Color.GREEN);
+		setBackgroundCell(nr%DIMENSION, nr/DIMENSION, Color.GREEN);
 	}
 
 	public void setSelectedCell(int nr) {
-		setBackgroundCell(nr%10, nr/10, Color.YELLOW);
+		setBackgroundCell(nr%DIMENSION, nr/DIMENSION, Color.YELLOW);
 
 	}
 
 	public void setFailCell(int nr) {
-		setBackgroundCell(nr%10, nr/10, Color.RED);
+		setBackgroundCell(nr%DIMENSION, nr/DIMENSION, Color.RED);
 
 	}
 }
