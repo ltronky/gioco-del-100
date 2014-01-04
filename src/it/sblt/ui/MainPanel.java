@@ -329,4 +329,8 @@ public class MainPanel extends JFrame{
 		setBackgroundCell(nr%DIMENSION, nr/DIMENSION, Color.RED);
 
 	}
+	
+	public void printInLog(String s) {
+		logger.append(s+"\n");
+	}
 }
