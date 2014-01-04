@@ -10,12 +10,13 @@ import java.util.Random;
 
 public class GameOf100 {
 	
-	private static final long FAIL_BACKTRACK_TIME = 20;
-	private static final long POST_PAINT_CELL_TIME = 4;//400
-	private static final long WAIT_BEFORE_FIND_SOLUTION_TIME = 7;//700
-	private static final long WAIT_BEFORE_EXECUTE_SUBPROBLEM_TIME = 10;//1000
+	private static final int speed = 0;
+	private static final long FAIL_BACKTRACK_TIME = 20*speed;
+	private static final long POST_PAINT_CELL_TIME = 4*speed;//400
+	private static final long WAIT_BEFORE_FIND_SOLUTION_TIME = 7*speed;//700
+	private static final long WAIT_BEFORE_EXECUTE_SUBPROBLEM_TIME = 10*speed;//1000
 	
-	private final int dim = 5;
+	private final int dim = 10;
 	
 	private MainPanel ui = new MainPanel(dim);
 
@@ -124,6 +125,7 @@ public class GameOf100 {
 			for (int j = 0; j < variableList.length && ck; j++) {
 				if (availablePositions.get(i) == variableList[j].value) {
 					availablePositions.remove(i);
+					i--;
 					ck = false;
 				}
 			}
