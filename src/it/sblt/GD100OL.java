@@ -2,12 +2,13 @@ package it.sblt;
 
 import it.sblt.ui.MainPanel;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import solver.Solver;
 import solver.constraints.Constraint;
 import solver.constraints.ICF;
-import solver.constraints.LogicalConstraintFactory;
+import solver.constraints.LCF;
 import solver.search.loop.monitors.SearchMonitorFactory;
 import solver.search.strategy.IntStrategyFactory;
 import solver.variables.IntVar;
@@ -31,7 +32,7 @@ public class GD100OL {
 		SearchMonitorFactory.log(solver, true, true);
 
 		IntVar variableList[] = new IntVar[dim*dim];
-		variableList[0] = VariableFactory.enumerated(Integer.toString(1), 0, 0, solver);
+		variableList[0] = VariableFactory.enumerated("V"+Integer.toString(1), 0, 0, solver);
 		ui.printNumber("1", 0);
 
 		IntVar dimensionIV = VariableFactory.fixed(dim, solver);
@@ -39,7 +40,7 @@ public class GD100OL {
 		
 		
 		for (int i = 1; i < dim*dim; i++) {
-			variableList[i] = VariableFactory.enumerated(Integer.toString(i+1), 1, dim*dim-1, solver);
+			variableList[i] = VariableFactory.enumerated("V"+Integer.toString(i+1), 1, dim*dim-1, solver);
 		}
 		solver.post(ICF.alldifferent(variableList, "BC"));//CONSISTENCY := AC, BoundConsistency, weak_BC, NEQS, DEFAULT
 
@@ -47,6 +48,8 @@ public class GD100OL {
 		int dueDim = 2*dim;
 		
 		for (int i = 0; i < variableList.length-1; i++) {
+			ArrayList<Constraint> clauses = new ArrayList<Constraint>();
+			
 //(x + 3);
 			IntVar xp3 = VariableFactory.bounded(StringUtils.randomName(), -100, 200, solver);
 			solver.post(ICF.arithm(xp3, "-",variableList[i], "=", 3));
@@ -67,7 +70,7 @@ public class GD100OL {
 			IntVar tSum = VariableFactory.bounded(StringUtils.randomName(), -100, 200, solver);
 			solver.post(ICF.sum(new IntVar[]{xp3,negXp3Mod}, tSum));
 			
-			solver.post(LogicalConstraintFactory.ifThen(ICF.arithm(tSum ,"=", xMinusXMod), ICF.arithm(variableList[i+1], "-", variableList[i] ,"=", 3)));
+			clauses.add(LCF.ifThen(ICF.arithm(tSum ,"=", xMinusXMod), ICF.arithm(variableList[i+1], "-", variableList[i] ,"=", 3)));
 			
 //(x - 3);
 			IntVar xm3 = VariableFactory.bounded(StringUtils.randomName(), -100, 200, solver);
@@ -80,8 +83,8 @@ public class GD100OL {
 			IntVar tSumXM3 = VariableFactory.bounded(StringUtils.randomName(), -100, 200, solver);
 			solver.post(ICF.sum(new IntVar[]{xm3,negXm3Mod}, tSumXM3));
 			
-			Constraint and1 = LogicalConstraintFactory.and(ICF.arithm(xm3, ">", -100), ICF.arithm(tSumXM3 ,"=", xMinusXMod));
-			solver.post(LogicalConstraintFactory.ifThen(and1, ICF.arithm(variableList[i+1], "-", variableList[i] ,"=", -3)));
+			Constraint and1 = LCF.and(ICF.arithm(xm3, ">", -100), ICF.arithm(tSumXM3 ,"=", xMinusXMod));
+			clauses.add(LCF.ifThen(and1, ICF.arithm(variableList[i+1], "-", variableList[i] ,"=", -3)));
 			
 
 //(x + 3*dim)			
@@ -91,8 +94,8 @@ public class GD100OL {
 			IntVar xp3xDimMod = VariableFactory.bounded(StringUtils.randomName(), -100, 200, solver);
 			solver.post(ICF.mod(xp3xDim, dimensionIV, xp3xDimMod));
 			
-			Constraint and2 = LogicalConstraintFactory.and(ICF.arithm(xp3xDim, "<", dim*dim), ICF.arithm(xp3xDimMod ,"=", xMod));
-			solver.post(LogicalConstraintFactory.ifThen(and2, ICF.arithm(variableList[i+1], "-", variableList[i] ,"=", 3*dim)));
+			Constraint and2 = LCF.and(ICF.arithm(xp3xDim, "<", dim*dim), ICF.arithm(xp3xDimMod ,"=", xMod));
+			clauses.add(LCF.ifThen(and2, ICF.arithm(variableList[i+1], "-", variableList[i] ,"=", 3*dim)));
 			
 			
 //(x - 3*dim)
@@ -102,8 +105,8 @@ public class GD100OL {
 			IntVar xm3xDimMod = VariableFactory.bounded(StringUtils.randomName(), -100, 200, solver);
 			solver.post(ICF.mod(xm3xDim, dimensionIV, xm3xDimMod));
 			
-			Constraint and3 = LogicalConstraintFactory.and(ICF.arithm(xm3xDim, ">", 0), ICF.arithm(xm3xDimMod ,"=", xMod));
-			solver.post(LogicalConstraintFactory.ifThen(and3, ICF.arithm(variableList[i+1], "-", variableList[i] ,"=", -3*dim)));
+			Constraint and3 = LCF.and(ICF.arithm(xm3xDim, ">", 0), ICF.arithm(xm3xDimMod ,"=", xMod));
+			clauses.add(LCF.ifThen(and3, ICF.arithm(variableList[i+1], "-", variableList[i] ,"=", -3*dim)));
 			
 			
 //(x + 2*dim-2) && (x + 2*dim+2)
@@ -130,7 +133,7 @@ public class GD100OL {
 				IntVar sum2 = VariableFactory.bounded(StringUtils.randomName(), -100, 200, solver);
 				solver.post(ICF.sum(new IntVar[]{xpC1Mod2,negXpC1Mod}, sum2));
 				
-				solver.post(LogicalConstraintFactory.ifThen(ICF.arithm(sum2, "=", sum1), ICF.arithm(variableList[i+1], "-", variableList[i] ,"=", c1[j])));
+				clauses.add(LCF.ifThen(ICF.arithm(sum2, "=", sum1), ICF.arithm(variableList[i+1], "-", variableList[i] ,"=", c1[j])));
 			}
 			
 //(x + 2*dim-2) && (x + 2*dim+2)
@@ -159,9 +162,11 @@ public class GD100OL {
 				IntVar sum3 = VariableFactory.bounded(StringUtils.randomName(), -100, 200, solver);
 				solver.post(ICF.sum(new IntVar[]{xmC1Mod2,negXmC1Mod}, sum3));
 				
-				Constraint and4 = LogicalConstraintFactory.and(ICF.arithm(xmC1, ">", 0), ICF.arithm(sum3, "=", sum4));
-				solver.post(LogicalConstraintFactory.ifThen(and2, ICF.arithm(variableList[i+1], "-", variableList[i] ,"=", -c1[j])));
+				Constraint and4 = LCF.and(ICF.arithm(xmC1, ">", 0), ICF.arithm(sum3, "=", sum4));
+				clauses.add(LCF.ifThen(and2, ICF.arithm(variableList[i+1], "-", variableList[i] ,"=", -c1[j])));
 			}
+			
+			solver.post(LCF.or(clauses.toArray(new Constraint[clauses.size()])));
 		}
 		
 		solver.set(IntStrategyFactory.inputOrder_InDomainMin(variableList));
@@ -175,6 +180,7 @@ public class GD100OL {
 			
 		} else {
 			ui.setStatusFieldLabel("Stop : FALLITO");
+			System.out.println(Arrays.toString(solver.getCstrs()));
 			System.out.println(Arrays.toString(variableList));
 		}
 	}
