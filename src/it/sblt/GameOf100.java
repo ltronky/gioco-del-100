@@ -150,7 +150,8 @@ public class GameOf100 {
 	}
 	
 	public static void main(String[] args) {
-		new GameOf100();
+//		new GameOf100();
 //		new GD100FV();
+		new GD100OL();
 	}
 }
