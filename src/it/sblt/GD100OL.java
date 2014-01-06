@@ -9,6 +9,7 @@ import solver.constraints.Constraint;
 import solver.constraints.ICF;
 import solver.constraints.LogicalConstraintFactory;
 import solver.search.loop.monitors.SearchMonitorFactory;
+import solver.search.strategy.IntStrategyFactory;
 import solver.variables.IntVar;
 import solver.variables.VariableFactory;
 import util.tools.StringUtils;
@@ -21,7 +22,7 @@ public class GD100OL {
 //	private static final long WAIT_BEFORE_FIND_SOLUTION_TIME = 7*speed;//700
 //	private static final long WAIT_BEFORE_EXECUTE_SUBPROBLEM_TIME = 10*speed;//1000
 
-	private final int dim = 10;
+	private final int dim = 5;
 
 	private MainPanel ui = new MainPanel(dim);
 
@@ -29,7 +30,7 @@ public class GD100OL {
 		Solver solver = new Solver("100_Game");
 		SearchMonitorFactory.log(solver, true, true);
 
-		IntVar variableList[] = new IntVar[100];
+		IntVar variableList[] = new IntVar[dim*dim];
 		variableList[0] = VariableFactory.enumerated(Integer.toString(1), 0, 0, solver);
 		ui.printNumber("1", 0);
 
@@ -37,7 +38,7 @@ public class GD100OL {
 		IntVar dimension2IV = VariableFactory.fixed(dim*dim, solver);
 		
 		
-		for (int i = 0; i < variableList.length; i++) {
+		for (int i = 1; i < dim*dim; i++) {
 			variableList[i] = VariableFactory.enumerated(Integer.toString(i+1), 1, dim*dim-1, solver);
 		}
 		solver.post(ICF.alldifferent(variableList, "BC"));//CONSISTENCY := AC, BoundConsistency, weak_BC, NEQS, DEFAULT
@@ -163,8 +164,7 @@ public class GD100OL {
 			}
 		}
 		
-		
-//		solver.set(IntStrategyFactory.inputOrder_InDomainMin(variableList));
+		solver.set(IntStrategyFactory.inputOrder_InDomainMin(variableList));
 		if (solver.findSolution()) {
 			System.out.println("FUZIONA!!!!");
 			ui.setStatusFieldLabel("Stop : TERMINATO");
@@ -175,6 +175,7 @@ public class GD100OL {
 			
 		} else {
 			ui.setStatusFieldLabel("Stop : FALLITO");
+			System.out.println(Arrays.toString(variableList));
 		}
 	}
 
