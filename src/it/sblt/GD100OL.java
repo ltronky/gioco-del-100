@@ -70,7 +70,7 @@ public class GD100OL {
 				IntVar tSum = VariableFactory.bounded(StringUtils.randomName(), -1000, 2000, solver);
 				solver.post(ICF.sum(new IntVar[]{xp3,negXp3Mod}, tSum));
 
-				clauses.add(LCF.ifThen(ICF.arithm(tSum ,"=", xMinusXMod), ICF.arithm(variableList[i+1], "-", variableList[i] ,"=", 3)));
+				clauses.add(LCF.and(ICF.arithm(tSum ,"=", xMinusXMod), ICF.arithm(variableList[i+1], "-", variableList[i] ,"=", 3)));
 			}
 //(x - 3);
 			{
@@ -94,7 +94,7 @@ public class GD100OL {
 				solver.post(ICF.sum(new IntVar[]{xm3,negXm3Mod}, tSumXM3));
 
 				Constraint and1 = LCF.and(ICF.arithm(xm3, ">", -100), ICF.arithm(tSumXM3 ,"=", xMinusXMod));
-				clauses.add(LCF.ifThen(and1, ICF.arithm(variableList[i+1], "-", variableList[i] ,"=", -3)));
+				clauses.add(LCF.and(and1, ICF.arithm(variableList[i+1], "-", variableList[i] ,"=", -3)));
 			}
 
 //(x + 3*dim)
@@ -109,7 +109,7 @@ public class GD100OL {
 				solver.post(ICF.mod(variableList[i], dimensionIV, xMod));
 
 				Constraint and2 = LCF.and(ICF.arithm(xp3xDim, "<", dim*dim), ICF.arithm(xp3xDimMod ,"=", xMod));
-				clauses.add(LCF.ifThen(and2, ICF.arithm(variableList[i+1], "-", variableList[i] ,"=", 3*dim)));
+				clauses.add(LCF.and(and2, ICF.arithm(variableList[i+1], "-", variableList[i] ,"=", 3*dim)));
 			}
 			
 //(x - 3*dim)
@@ -124,7 +124,7 @@ public class GD100OL {
 				solver.post(ICF.mod(variableList[i], dimensionIV, xMod));
 
 				Constraint and3 = LCF.and(ICF.arithm(xm3xDim, ">", 0), ICF.arithm(xm3xDimMod ,"=", xMod));
-				clauses.add(LCF.ifThen(and3, ICF.arithm(variableList[i+1], "-", variableList[i] ,"=", -3*dim)));
+				clauses.add(LCF.and(and3, ICF.arithm(variableList[i+1], "-", variableList[i] ,"=", -3*dim)));
 			}
 			
 //(x + 2*dim-2) && (x + 2*dim+2)
@@ -151,7 +151,7 @@ public class GD100OL {
 				IntVar sum2 = VariableFactory.bounded(StringUtils.randomName(), -1000, 2000, solver);
 				solver.post(ICF.sum(new IntVar[]{xpC1Mod2,negXpC1Mod}, sum2));
 				
-				clauses.add(LCF.ifThen(ICF.arithm(sum2, "=", sum1), ICF.arithm(variableList[i+1], "-", variableList[i] ,"=", c1[j])));
+				clauses.add(LCF.and(ICF.arithm(sum2, "=", sum1), ICF.arithm(variableList[i+1], "-", variableList[i] ,"=", c1[j])));
 			}
 			
 //(x - 2*dim-2) && (x - 2*dim+2)
@@ -181,23 +181,23 @@ public class GD100OL {
 				solver.post(ICF.sum(new IntVar[]{xmC1Mod2,negXmC1Mod}, sum3));
 				
 				Constraint and4 = LCF.and(ICF.arithm(xmC1, ">", 0), ICF.arithm(sum3, "=", sum4));
-				clauses.add(LCF.ifThen(and4, ICF.arithm(variableList[i+1], "-", variableList[i] ,"=", -c1[j])));
+				clauses.add(LCF.and(and4, ICF.arithm(variableList[i+1], "-", variableList[i] ,"=", -c1[j])));
 			}
 			
-//			ArrayList<Constraint> refactorClauses = new ArrayList<Constraint>();
-//			for (int j = 0; j < clauses.size(); j++) {
-//				ArrayList<Constraint> tmpClauses = new ArrayList<Constraint>();
-//				for (int j2 = 0; j2 < clauses.size(); j2++) {
-//					if (j2==j) {
-//						tmpClauses.add(clauses.get(j2));
-//					} else {
-//						tmpClauses.add(LCF.not(clauses.get(j2)));
-//					}
-//				}
-//				refactorClauses.add(LCF.and(tmpClauses.toArray(new Constraint[tmpClauses.size()])));
-//			}
-//			solver.post(LCF.or(refactorClauses.toArray(new Constraint[refactorClauses.size()])));
-			solver.post(LCF.or(clauses.toArray(new Constraint[clauses.size()])));
+			ArrayList<Constraint> refactorClauses = new ArrayList<Constraint>();
+			for (int j = 0; j < clauses.size(); j++) {
+				ArrayList<Constraint> tmpClauses = new ArrayList<Constraint>();
+				for (int j2 = 0; j2 < clauses.size(); j2++) {
+					if (j2==j) {
+						tmpClauses.add(clauses.get(j2));
+					} else {
+						tmpClauses.add(LCF.not(clauses.get(j2)));
+					}
+				}
+				refactorClauses.add(LCF.and(tmpClauses.toArray(new Constraint[tmpClauses.size()])));
+			}
+			solver.post(LCF.or(refactorClauses.toArray(new Constraint[refactorClauses.size()])));
+//			solver.post(LCF.or(clauses.toArray(new Constraint[clauses.size()])));
 		}
 		
 		solver.set(IntStrategyFactory.inputOrder_InDomainMin(variableList));
@@ -211,7 +211,7 @@ public class GD100OL {
 			System.out.println(Arrays.toString(solver.getCstrs()));
 		} else {
 			ui.setStatusFieldLabel("Stop : FALLITO");
-			System.out.println(Arrays.toString(solver.getCstrs()));
+//			System.out.println(Arrays.toString(solver.getCstrs()));
 			System.out.println(Arrays.toString(variableList));
 		}
 	}
