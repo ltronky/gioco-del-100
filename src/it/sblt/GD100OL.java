@@ -28,11 +28,11 @@ public class GD100OL {
 	private MainPanel ui = new MainPanel(dim);
 
 	public GD100OL() {
-		Solver solver = new Solver("100_Game");
-		SearchMonitorFactory.log(solver, true, true);
+		Solver solver = new Solver("100_Game " + dim + "x" + dim );
+		SearchMonitorFactory.log(solver, true, false);
 
 		IntVar variableList[] = new IntVar[dim*dim];
-		variableList[0] = VariableFactory.enumerated("V"+Integer.toString(1), 0, 0, solver);
+		variableList[0] = VariableFactory.enumerated(Integer.toString(1), 0, 0, solver);
 		ui.printNumber("1", 0);
 
 		IntVar dimensionIV = VariableFactory.fixed(dim, solver);
@@ -40,7 +40,7 @@ public class GD100OL {
 		
 		
 		for (int i = 1; i < dim*dim; i++) {
-			variableList[i] = VariableFactory.enumerated("V"+Integer.toString(i+1), 1, dim*dim-1, solver);
+			variableList[i] = VariableFactory.enumerated(Integer.toString(i+1), 1, dim*dim-1, solver);
 		}
 		solver.post(ICF.alldifferent(variableList, "BC"));//CONSISTENCY := AC, BoundConsistency, weak_BC, NEQS, DEFAULT
 
@@ -208,7 +208,6 @@ public class GD100OL {
 			for (int i = 0; i < variableList.length; i++) {
 				ui.printNumber(variableList[i].getName(), variableList[i].getValue());
 			}
-			System.out.println(Arrays.toString(solver.getCstrs()));
 		} else {
 			ui.setStatusFieldLabel("Stop : FALLITO");
 //			System.out.println(Arrays.toString(solver.getCstrs()));
