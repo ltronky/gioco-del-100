@@ -10,13 +10,15 @@ import java.util.Random;
 
 public class GameOf100 {
 	
-	private static final int speed = 0;
+	private static final int speed = 100;
 	private static final long FAIL_BACKTRACK_TIME = 20*speed;
 	private static final long POST_PAINT_CELL_TIME = 4*speed;//400
 	private static final long WAIT_BEFORE_FIND_SOLUTION_TIME = 7*speed;//700
 	private static final long WAIT_BEFORE_EXECUTE_SUBPROBLEM_TIME = 10*speed;//1000
 	
-	private final int dim = 10;
+	private final int dim = 7;
+	
+	private int backTrack = 0;
 	
 	private MainPanel ui = new MainPanel(dim);
 
@@ -25,7 +27,9 @@ public class GameOf100 {
 		variableList[0] = new Numbr(Integer.toString(1), 0);
 
 		ui.printNumber("1", 0);
+		long startTime = System.currentTimeMillis();
 		if (executeSubProblem(variableList, 0)) {
+			System.out.println("ComputingTime= " + (System.currentTimeMillis() - startTime) + " backtrack= " + backTrack);
 			System.out.println("FUZIONA!!!!");
 			ui.setStatusFieldLabel("Stop : TERMINATO");
 		} else {
@@ -54,7 +58,7 @@ public class GameOf100 {
 
 			variableList[lastIndex+1] = new Numbr(Integer.toString(lastIndex+2), -1);
 
-			System.out.println("Available Positions " + availablePositions.toString());
+//			System.out.println("Available Positions " + availablePositions.toString());
 			for (int i = 1; i < dim*dim; i++) {
 				boolean test = true;
 				for (int j = 0; j < availablePositions.size() && test; j++) {
@@ -67,7 +71,7 @@ public class GameOf100 {
 							}
 						}
 						if (test1){
-							ui.setAvailableCell(i);
+//							ui.setAvailableCell(i);
 							SLEEP(POST_PAINT_CELL_TIME);
 						}			
 					}
@@ -84,16 +88,16 @@ public class GameOf100 {
 			if (lastIndex+1<=dim*dim-1) {
 				if (findSolution(variableList, availablePositions)) {
 
-					ui.setSelectedCell(variableList[lastIndex+1].value);
+//					ui.setSelectedCell(variableList[lastIndex+1].value);
 					SLEEP(POST_PAINT_CELL_TIME);
 					ui.printNumber(variableList[lastIndex+1].name, variableList[lastIndex+1].value);
-					ui.setNextNumFieldLabel(String.valueOf(lastIndex+3));
+//					ui.setNextNumFieldLabel(String.valueOf(lastIndex+3));
 					
 					SLEEP(WAIT_BEFORE_EXECUTE_SUBPROBLEM_TIME);
 
 
 					if (!executeSubProblem(variableList, lastIndex+1)) {
-						ui.setFailCell(variableList[lastIndex+1].value);
+//						ui.setFailCell(variableList[lastIndex+1].value);
 						ui.printNumber("", variableList[lastIndex+1].value);
 						for (int i = 0; i < availablePositions.size(); i++) {
 							if (variableList[lastIndex+1].value == availablePositions.get(i).intValue()) {
@@ -105,12 +109,13 @@ public class GameOf100 {
 					}
 				} else {
 
-					System.out.println("ERRORE");
-					ui.setStatusFieldLabel("Stop : BACKTRACK");
+//					System.out.println("ERRORE");
+//					ui.setStatusFieldLabel("Stop : BACKTRACK");
+					backTrack++;
 					return false;
 				}
 			} else {
-				System.out.println("PROBLEMA RISOLTO");
+//				System.out.println("PROBLEMA RISOLTO");
 				saveSolution(variableList);
 				return true;
 			}
@@ -142,16 +147,16 @@ public class GameOf100 {
 	}
 	
 	private void SLEEP(long time){
-		try {
-			Thread.sleep(time);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+//		try {
+//			Thread.sleep(time);
+//		} catch (InterruptedException e) {
+//			e.printStackTrace();
+//		}
 	}
 	
 	public static void main(String[] args) {
-//		new GameOf100();
+		new GameOf100();
 //		new GD100FV();
-		new GD100OL();
+//		new GD100OL();
 	}
 }
