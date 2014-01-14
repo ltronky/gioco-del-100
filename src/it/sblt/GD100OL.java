@@ -17,19 +17,18 @@ import util.tools.StringUtils;
 
 public class GD100OL {
 
-//	private static final int speed = 0;
-//	private static final long FAIL_BACKTRACK_TIME = 20*speed;
-//	private static final long POST_PAINT_CELL_TIME = 4*speed;//400
-//	private static final long WAIT_BEFORE_FIND_SOLUTION_TIME = 7*speed;//700
-//	private static final long WAIT_BEFORE_EXECUTE_SUBPROBLEM_TIME = 10*speed;//1000
+	private MainPanel ui;
 
-	private final int dim = 5;
+	public GD100OL(MainPanel main) {
+		ui = main; 
+		ui.cspAlgorithm = this;
+	}
 
-	private MainPanel ui = new MainPanel(dim);
+	public void startAlgorithm(int dim) {
 
-	public GD100OL() {
-		Solver solver = new Solver("100_Game " + dim + "x" + dim );
-		SearchMonitorFactory.log(solver, true, false);
+		System.out.println("start CHOCO");
+		Solver solver = new Solver("100_Game");
+		SearchMonitorFactory.log(solver, true, true);
 
 		IntVar variableList[] = new IntVar[dim*dim];
 		variableList[0] = VariableFactory.enumerated(Integer.toString(1), 0, 0, solver);
@@ -37,8 +36,8 @@ public class GD100OL {
 
 		IntVar dimensionIV = VariableFactory.fixed(dim, solver);
 		IntVar dimension2IV = VariableFactory.fixed(dim*dim, solver);
-		
-		
+
+
 		for (int i = 1; i < dim*dim; i++) {
 			variableList[i] = VariableFactory.enumerated(Integer.toString(i+1), 1, dim*dim-1, solver);
 		}
@@ -46,10 +45,10 @@ public class GD100OL {
 
 		int[] c1 = new int[]{2*dim-2, 2*dim+2};
 		int dueDim = 2*dim;
-		
+
 		for (int i = 0; i < variableList.length-1; i++) {
 			ArrayList<Constraint> clauses = new ArrayList<Constraint>();
-//(x + 3);
+			//(x + 3);
 			{
 				IntVar xp3 = VariableFactory.bounded(StringUtils.randomName(), -1000, 2000, solver);
 				solver.post(ICF.arithm(xp3, "-",variableList[i], "=", 3));
@@ -72,7 +71,7 @@ public class GD100OL {
 
 				clauses.add(LCF.and(ICF.arithm(tSum ,"=", xMinusXMod), ICF.arithm(variableList[i+1], "-", variableList[i] ,"=", 3)));
 			}
-//(x - 3);
+			//(x - 3);
 			{
 				IntVar xm3 = VariableFactory.bounded(StringUtils.randomName(), -1000, 2000, solver);
 				solver.post(ICF.arithm(xm3, "-",variableList[i], "=", -3));
@@ -97,7 +96,7 @@ public class GD100OL {
 				clauses.add(LCF.and(and1, ICF.arithm(variableList[i+1], "-", variableList[i] ,"=", -3)));
 			}
 
-//(x + 3*dim)
+			//(x + 3*dim)
 			{
 				IntVar xp3xDim = VariableFactory.bounded(StringUtils.randomName(), -1000, 2000, solver);
 				solver.post(ICF.arithm(xp3xDim, "-",variableList[i], "=", 3*dim));
@@ -111,8 +110,8 @@ public class GD100OL {
 				Constraint and2 = LCF.and(ICF.arithm(xp3xDim, "<", dim*dim), ICF.arithm(xp3xDimMod ,"=", xMod));
 				clauses.add(LCF.and(and2, ICF.arithm(variableList[i+1], "-", variableList[i] ,"=", 3*dim)));
 			}
-			
-//(x - 3*dim)
+
+			//(x - 3*dim)
 			{
 				IntVar xm3xDim = VariableFactory.bounded(StringUtils.randomName(), -1000, 2000, solver);
 				solver.post(ICF.arithm(xm3xDim, "-",variableList[i], "=", -3*dim));
@@ -126,64 +125,64 @@ public class GD100OL {
 				Constraint and3 = LCF.and(ICF.arithm(xm3xDim, ">", 0), ICF.arithm(xm3xDimMod ,"=", xMod));
 				clauses.add(LCF.and(and3, ICF.arithm(variableList[i+1], "-", variableList[i] ,"=", -3*dim)));
 			}
-			
-//(x + 2*dim-2) && (x + 2*dim+2)
+
+			//(x + 2*dim-2) && (x + 2*dim+2)
 			for (int j = 0; j < c1.length; j++) {
 				IntVar xp2Dim = VariableFactory.bounded(StringUtils.randomName(), -1000, 2000, solver);
 				solver.post(ICF.arithm(xp2Dim, "-",variableList[i], "=", dueDim));
 				IntVar xp2DimMod = VariableFactory.bounded(StringUtils.randomName(), -1000, 2000, solver);
 				solver.post(ICF.mod(xp2Dim, dimensionIV, xp2DimMod));
-				
+
 				IntVar negXp2DimMod = VariableFactory.minus(xp2DimMod);
 				IntVar sum1 = VariableFactory.bounded(StringUtils.randomName(), -1000, 2000, solver);
 				solver.post(ICF.sum(new IntVar[]{xp2Dim,negXp2DimMod}, sum1));
-				
+
 				IntVar xpC1 = VariableFactory.bounded(StringUtils.randomName(), -1000, 2000, solver);
 				solver.post(ICF.arithm(xpC1, "-",variableList[i], "=", c1[j]));
-				
+
 				IntVar xpC1Mod2 = VariableFactory.bounded(StringUtils.randomName(), -1000, 2000, solver);
 				solver.post(ICF.mod(xpC1, dimension2IV, xpC1Mod2));
-				
+
 				IntVar xpC1Mod = VariableFactory.bounded(StringUtils.randomName(), -1000, 2000, solver);
 				solver.post(ICF.mod(xpC1, dimensionIV, xpC1Mod));
-				
+
 				IntVar negXpC1Mod = VariableFactory.minus(xpC1Mod);
 				IntVar sum2 = VariableFactory.bounded(StringUtils.randomName(), -1000, 2000, solver);
 				solver.post(ICF.sum(new IntVar[]{xpC1Mod2,negXpC1Mod}, sum2));
-				
+
 				clauses.add(LCF.and(ICF.arithm(sum2, "=", sum1), ICF.arithm(variableList[i+1], "-", variableList[i] ,"=", c1[j])));
 			}
-			
-//(x - 2*dim-2) && (x - 2*dim+2)
+
+			//(x - 2*dim-2) && (x - 2*dim+2)
 			for (int j = 0; j < c1.length; j++) {
 				IntVar xm2Dim = VariableFactory.bounded(StringUtils.randomName(), -1000, 2000, solver);
 				solver.post(ICF.arithm(xm2Dim, "-",variableList[i], "=", -dueDim));
-				
+
 				IntVar xm2DimAbs = VariableFactory.abs(xm2Dim);
 				IntVar xm2DimAbsMod = VariableFactory.bounded(StringUtils.randomName(), -1000, 2000, solver);
 				solver.post(ICF.mod(xm2DimAbs, dimensionIV, xm2DimAbsMod));
-				
+
 				IntVar negXm2DimAbsMod = VariableFactory.minus(xm2DimAbsMod);
 				IntVar sum4 = VariableFactory.bounded(StringUtils.randomName(), -1000, 2000, solver);
 				solver.post(ICF.sum(new IntVar[]{xm2Dim,negXm2DimAbsMod}, sum4));
-				
+
 				IntVar xmC1 = VariableFactory.bounded(StringUtils.randomName(), -1000, 2000, solver);
 				solver.post(ICF.arithm(xmC1, "-",variableList[i], "=", -c1[j]));
-				
+
 				IntVar xmC1Mod2 = VariableFactory.bounded(StringUtils.randomName(), -1000, 2000, solver);
 				solver.post(ICF.mod(xmC1, dimension2IV, xmC1Mod2));
-				
+
 				IntVar xmC1Mod = VariableFactory.bounded(StringUtils.randomName(), -1000, 2000, solver);
 				solver.post(ICF.mod(xmC1, dimensionIV, xmC1Mod));
-				
+
 				IntVar negXmC1Mod = VariableFactory.minus(xmC1Mod);
 				IntVar sum3 = VariableFactory.bounded(StringUtils.randomName(), -1000, 2000, solver);
 				solver.post(ICF.sum(new IntVar[]{xmC1Mod2,negXmC1Mod}, sum3));
-				
+
 				Constraint and4 = LCF.and(ICF.arithm(xmC1, ">", 0), ICF.arithm(sum3, "=", sum4));
 				clauses.add(LCF.and(and4, ICF.arithm(variableList[i+1], "-", variableList[i] ,"=", -c1[j])));
 			}
-			
+
 			ArrayList<Constraint> refactorClauses = new ArrayList<Constraint>();
 			for (int j = 0; j < clauses.size(); j++) {
 				ArrayList<Constraint> tmpClauses = new ArrayList<Constraint>();
@@ -197,47 +196,23 @@ public class GD100OL {
 				refactorClauses.add(LCF.and(tmpClauses.toArray(new Constraint[tmpClauses.size()])));
 			}
 			solver.post(LCF.or(refactorClauses.toArray(new Constraint[refactorClauses.size()])));
-//			solver.post(LCF.or(clauses.toArray(new Constraint[clauses.size()])));
+			//			solver.post(LCF.or(clauses.toArray(new Constraint[clauses.size()])));
 		}
-		
+
 		solver.set(IntStrategyFactory.inputOrder_InDomainMin(variableList));
 		if (solver.findSolution()) {
 			System.out.println("FUZIONA!!!!");
 			ui.setStatusFieldLabel("Stop : TERMINATO");
-			
+
 			for (int i = 0; i < variableList.length; i++) {
 				ui.printNumber(variableList[i].getName(), variableList[i].getValue());
 			}
+			//			System.out.println(Arrays.toString(solver.getCstrs()));
 		} else {
 			ui.setStatusFieldLabel("Stop : FALLITO");
-//			System.out.println(Arrays.toString(solver.getCstrs()));
+			//			System.out.println(Arrays.toString(solver.getCstrs()));
 			System.out.println(Arrays.toString(variableList));
 		}
 	}
 
-	private void saveSolution(IntVar[] varList) {
-		ui.printInLog(Arrays.toString(varList));
-	}
-	
-//	private ArrayList<Integer> getAvailablePositions(int x) {
-//		ArrayList<Integer> availablePositions = new ArrayList<Integer>();
-//		if (						(x + 3)-((x + 3)%dim) == x-(x%dim)) availablePositions.add(x + 3);
-//		if ((x - 3)>0    		 && (x - 3)-((x - 3)%dim) == x-(x%dim)) availablePositions.add(x - 3);
-//		if ((x + 3*dim)<dim*dim  && (x + 3*dim)%dim == x%dim) availablePositions.add(x + 3*dim);
-//		if ((x - 3*dim)>0		 && (x - 3*dim)%dim == x%dim) availablePositions.add(x - 3*dim);
-//		if (						((x + 2*dim-2)%(dim*dim))-((x + 2*dim-2)%dim) == (x + 2*dim)-((x + 2*dim)%dim)) availablePositions.add(x + 2*dim-2);
-//		if (						((x + 2*dim+2)%(dim*dim))-((x + 2*dim+2)%dim) == (x + 2*dim)-((x + 2*dim)%dim)) availablePositions.add(x + 2*dim+2);
-//		if ((x - 2*dim-2)>0   	 && ((x - 2*dim-2)%(dim*dim))-((x - 2*dim-2)%dim) == (x - 2*dim)-((Math.abs(x - 2*dim))%dim)) availablePositions.add(x - 2*dim-2);
-//		if ((x - 2*dim+2)>0   	 && ((x - 2*dim+2)%(dim*dim))-((x - 2*dim+2)%dim) == (x - 2*dim)-((Math.abs(x - 2*dim))%dim)) availablePositions.add(x - 2*dim+2);
-//		return availablePositions;
-//	}
-	
-	private void SLEEP(long time){
-		try {
-			Thread.sleep(time);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
-	
 }
