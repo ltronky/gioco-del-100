@@ -342,6 +342,7 @@ public class MainPanel extends JFrame{
 						if (isChoco) {
 							runThread.stop();
 							runThread = null;
+							statusFieldLabel.setText("STOP: INTERROTO");
 						} 
 						else {
 							runThread.interrupt();
