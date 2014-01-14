@@ -4,7 +4,6 @@ package it.sblt;
 import it.sblt.ui.MainPanel;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Random;
 
 
@@ -25,9 +24,8 @@ public class GameOf100 {
 		ui.recursiveAlgorithm = this;
 	}
 
-	public void startRecursiveAlgorithm(int d) {
+	public void startRecursiveAlgorithm(int d) throws Exception{
 		dim = d;
-		System.out.println("start ricorsivo");
 		Numbr variableList[] = new Numbr[1];
 		variableList[0] = new Numbr(Integer.toString(1), 0);
 
@@ -35,7 +33,6 @@ public class GameOf100 {
 		long startTime = System.currentTimeMillis();
 		if (executeSubProblem(variableList, 0)) {
 			System.out.println("ComputingTime= " + (System.currentTimeMillis() - startTime) + " backtrack= " + backTrack);
-			System.out.println("FUZIONA!!!!");
 			ui.setStatusFieldLabel("Stop : TERMINATO");
 		} else {
 			ui.setStatusFieldLabel("Stop : FALLITO");
@@ -43,8 +40,11 @@ public class GameOf100 {
 		ui.resetRunThread();
 	}
 
-	public boolean executeSubProblem(Numbr[] old, int lastIndex) {
+	public boolean executeSubProblem(Numbr[] old, int lastIndex) throws Exception{
 
+		if (Thread.interrupted()) {
+			throw new Exception("INTERRUZIONE MANUALE");
+		}
 		int x = old[lastIndex].value;
 		ArrayList<Integer> availablePositions = new ArrayList<Integer>();
 		if (						(x + 3)-((x + 3)%dim) == x-(x%dim)) availablePositions.add(x + 3);
@@ -64,7 +64,6 @@ public class GameOf100 {
 
 			variableList[lastIndex+1] = new Numbr(Integer.toString(lastIndex+2), -1);
 
-//			System.out.println("Available Positions " + availablePositions.toString());
 			for (int i = 1; i < dim*dim; i++) {
 				boolean test = true;
 				for (int j = 0; j < availablePositions.size() && test; j++) {
@@ -77,33 +76,29 @@ public class GameOf100 {
 							}
 						}
 						if (test1){
-														ui.setAvailableCell(i);
+							ui.setAvailableCell(i);
 							SLEEP(ui.speed * POST_PAINT_CELL_TIME);
 						}			
 					}
 				}
-//				if (test) {
-//					solver.post(IntConstraintFactory.arithm(variableList[lastIndex+1], "!=", i));
-//				}
 			}
 
 			SLEEP(ui.speed * WAIT_BEFORE_FIND_SOLUTION_TIME);
 
-//			solver.set(IntStrategyFactory.inputOrder_InDomainMin(variableList)); 
-
 			if (lastIndex+1<=dim*dim-1) {
 				if (findSolution(variableList, availablePositions)) {
 
-										ui.setSelectedCell(variableList[lastIndex+1].value);
+					ui.setSelectedCell(variableList[lastIndex+1].value);
 					SLEEP(ui.speed * POST_PAINT_CELL_TIME);
 					ui.printNumber(variableList[lastIndex+1].name, variableList[lastIndex+1].value);
-										ui.setNextNumFieldLabel(String.valueOf(lastIndex+3));
+					ui.setNextNumFieldLabel(String.valueOf(lastIndex+3));
 
 					SLEEP(ui.speed * WAIT_BEFORE_EXECUTE_SUBPROBLEM_TIME);
 
 
 					if (!executeSubProblem(variableList, lastIndex+1)) {
-												ui.setFailCell(variableList[lastIndex+1].value);
+						ui.setFailCell(variableList[lastIndex+1].value);
+						ui.setNextNumFieldLabel(String.valueOf(lastIndex+2));
 						ui.printNumber("", variableList[lastIndex+1].value);
 						for (int i = 0; i < availablePositions.size(); i++) {
 							if (variableList[lastIndex+1].value == availablePositions.get(i).intValue()) {
@@ -115,14 +110,11 @@ public class GameOf100 {
 					}
 				} else {
 
-//					System.out.println("ERRORE");
-//					ui.setStatusFieldLabel("Stop : BACKTRACK");
 					backTrack++;
+					ui.setBackTrakingLabel(String.valueOf(backTrack)); 
 					return false;
 				}
 			} else {
-//				System.out.println("PROBLEMA RISOLTO");
-				saveSolution(variableList);
 				return true;
 			}
 			SLEEP(ui.speed * FAIL_BACKTRACK_TIME);
@@ -148,19 +140,17 @@ public class GameOf100 {
 		return false;
 	}
 
-	private void saveSolution(Numbr[] varList) {
-		//		ui.printInLog(Arrays.toString(varList));
-	}
-	
+
 	private void SLEEP(long time){
-		if (ui.delay)
-				try {
-					Thread.sleep(time);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
+		if (ui.speed != 0){
+			try {
+				Thread.sleep(time);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
+		}
 	}
-	
+
 	public static void main(String[] args) {
 		GameOf100 gameOf100 = new GameOf100();
 		new GD100OL(gameOf100.ui);

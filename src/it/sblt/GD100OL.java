@@ -41,7 +41,7 @@ public class GD100OL {
 		for (int i = 1; i < dim*dim; i++) {
 			variableList[i] = VariableFactory.enumerated(Integer.toString(i+1), 1, dim*dim-1, solver);
 		}
-		solver.post(ICF.alldifferent(variableList, "BC"));//CONSISTENCY := AC, BoundConsistency, weak_BC, NEQS, DEFAULT
+		solver.post(ICF.alldifferent(variableList, "BC"));
 
 		int[] c1 = new int[]{2*dim-2, 2*dim+2};
 		int dueDim = 2*dim;
@@ -196,22 +196,17 @@ public class GD100OL {
 				refactorClauses.add(LCF.and(tmpClauses.toArray(new Constraint[tmpClauses.size()])));
 			}
 			solver.post(LCF.or(refactorClauses.toArray(new Constraint[refactorClauses.size()])));
-			//			solver.post(LCF.or(clauses.toArray(new Constraint[clauses.size()])));
 		}
 
 		solver.set(IntStrategyFactory.inputOrder_InDomainMin(variableList));
 		if (solver.findSolution()) {
-			System.out.println("FUZIONA!!!!");
-			ui.setStatusFieldLabel("Stop : TERMINATO");
+			ui.setStatusFieldLabel("Stop: TERMINATO");
 
 			for (int i = 0; i < variableList.length; i++) {
 				ui.printNumber(variableList[i].getName(), variableList[i].getValue());
 			}
-			//			System.out.println(Arrays.toString(solver.getCstrs()));
 		} else {
-			ui.setStatusFieldLabel("Stop : FALLITO");
-			//			System.out.println(Arrays.toString(solver.getCstrs()));
-			System.out.println(Arrays.toString(variableList));
+			ui.setStatusFieldLabel("Stop: FALLITO");
 		}
 	}
 

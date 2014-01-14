@@ -18,14 +18,9 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.border.Border;
-import javax.swing.border.EmptyBorder;
-
-import org.antlr.v4.codegen.model.Sync;
 
 
 
@@ -34,9 +29,10 @@ public class MainPanel extends JFrame{
 
 	private int DIMENSION;
 
-	public boolean delay = true; 
-	public int speed = 10;
-	
+	public int speed = 0;
+
+	public boolean isChoco = false;
+
 	public GameOf100 recursiveAlgorithm;
 	public GD100OL cspAlgorithm;
 
@@ -46,18 +42,17 @@ public class MainPanel extends JFrame{
 	private JPanel backGridPanel;
 	private JPanel legendPanel;
 
-	private JTextArea logger;
-
-	private Box verticalLogPanel;
+	private Box horizontalBox3;
+	private Box horizontalBtnBox3;
 
 	private JButton restartBtn;
 	private JButton playBtn;
-	private JButton stepBtn;
 
 	private JLabel nextNumLabel;
 	private JLabel nextNumFieldLabel;
 	private JLabel statusLabel;
 	private JLabel statusFieldLabel; 
+	private JLabel backTrackFieldLabel;
 
 	private JComboBox<String> algorithmCB;
 	private JComboBox<String> dimensionCB;
@@ -107,14 +102,7 @@ public class MainPanel extends JFrame{
 
 	public MainPanel() {
 		DIMENSION = 5; // DEFAULT 
-		//		EventQueue.invokeLater(new Runnable() {
-		//			@Override
-		//			public void run() {
-		//				try {
-		//					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		//				} 
-		//				catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
-		//				} 
+
 		setTitle("Gioco del 100");
 		setResizable(false);
 
@@ -124,55 +112,19 @@ public class MainPanel extends JFrame{
 
 		generateStatusPanel(); // STATO
 
-		//generateLogPanel();
-
 		pack();
 		setVisible(true);
-		setMinimumSize(new Dimension(500,400));
-		//		setMaximumSize(new Dimension(1000,800));
+		setMinimumSize(new Dimension(600,450));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-
-		//			} 
-		//		});
 	}
-
-	//	private void generateLogPanel() {
-	//
-	//		JPanel logPanel = new JPanel();
-	//		logPanel.setBackground(Color.gray);
-	//		logPanel.setBorder(new EmptyBorder(0, 0, 30, 0));
-	//
-	//		verticalLogPanel = Box.createVerticalBox();
-	//		verticalLogPanel.setPreferredSize(new Dimension(570,200));
-	//
-	//		JLabel titleLogLabel = new JLabel("Monitoraggio vincoli");
-	//		titleLogLabel.setBorder(new EmptyBorder(10, 0, 10, 0));
-	//
-	//		logger = new JTextArea();
-	//		logger.setMinimumSize(new Dimension(570,200));
-	//		logger.setEditable(false);
-	//
-	//		JScrollPane logSPanel = new JScrollPane(logger);
-	//		logSPanel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-	//		logSPanel.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-	//		logSPanel.setPreferredSize(new Dimension(570,200));
-	//
-	//		verticalLogPanel.add(titleLogLabel);
-	//		verticalLogPanel.add(logSPanel);
-	//
-	//		logPanel.add(verticalLogPanel);
-	//
-	//		add(logPanel, BorderLayout.SOUTH);
-	//	}
-
 
 	private void generateStatusPanel() {
 
 		JPanel statusPanel = new JPanel();
 		statusPanel.setBorder(BorderFactory.createMatteBorder(2, 2, 4, 4, Color.LIGHT_GRAY));
-		statusPanel.setPreferredSize(new Dimension(260,300));
-		
+		statusPanel.setPreferredSize(new Dimension(260,350));
+
 
 		Box verticalBox1 = Box.createVerticalBox();
 		verticalBox1.add(Box.createVerticalStrut(50));
@@ -180,7 +132,6 @@ public class MainPanel extends JFrame{
 
 		Box horizontalBox1 = Box.createHorizontalBox();
 		horizontalBox1.add(Box.createHorizontalGlue());
-		//		horizontalBox1.setBorder(BorderFactory.createEmptyBorder(20, 0, 0, 0));
 
 		statusLabel = new JLabel("Stato di gioco");
 		statusLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 30));
@@ -199,19 +150,33 @@ public class MainPanel extends JFrame{
 		nextNumLabel = new JLabel("Prossimo numero");
 		nextNumLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 10));
 
-		nextNumFieldLabel = new JLabel("2");
+		nextNumFieldLabel = new JLabel("1");
 		nextNumFieldLabel.setPreferredSize(new Dimension(130,50));
 		nextNumFieldLabel.setBorder(BorderFactory.createMatteBorder(1, 6, 1, 1, Color.LIGHT_GRAY));
 
 		horizontalBox2.add(nextNumLabel);
 		horizontalBox2.add(nextNumFieldLabel);
 
+
+		horizontalBox3 = Box.createHorizontalBox(); // BACKTRAKING
+		horizontalBox3.add(Box.createHorizontalGlue());
+
+		JLabel backTrackLabel = new JLabel("Cicli Backtraking:");
+		backTrackLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 10));
+
+		backTrackFieldLabel = new JLabel("0");
+		backTrackFieldLabel.setPreferredSize(new Dimension(130,50));
+		backTrackFieldLabel.setBorder(BorderFactory.createMatteBorder(1, 6, 1, 1, Color.LIGHT_GRAY));
+
+		horizontalBox3.add(backTrackLabel);
+		horizontalBox3.add(backTrackFieldLabel);
+
 		verticalBox1.add(horizontalBox1);
 		verticalBox1.add(horizontalBox2);
+		verticalBox1.add(horizontalBox3);
 
 
 		legendPanel = new JPanel();
-		//		legendPanel.setBorder(BorderFactory.createEmptyBorder(150, 0, 0, 0));
 
 		JLabel legendLabel = new JLabel("Legenda");
 		legendLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 50, 0));
@@ -269,7 +234,6 @@ public class MainPanel extends JFrame{
 		grid = new PanelGrid(DIMENSION,DIMENSION,backGridPanel);
 
 		backGridPanel.setBorder(BorderFactory.createEmptyBorder(0, 20, 30, 10));
-
 		add(backGridPanel, BorderLayout.WEST);
 
 	}
@@ -277,32 +241,19 @@ public class MainPanel extends JFrame{
 
 	private void generateButtonPanel(){
 		buttonPanel = new JPanel();
-		buttonPanel.setPreferredSize(new Dimension(600,50));	
-
-		restartBtn = new JButton("Ricomincia");
-		restartBtn.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				algorithmCB.setSelectedIndex(0);
-				dimensionCB.setSelectedIndex(0);
-
-				EnableLegend();
-				EnableNextNumber();
-
-				statusFieldLabel.setText("Fermo");
-				setDimension(5);
-				generateGridPanel();
-				invalidate();
-				validate();
-				repaint();
-			}
-		});
+		buttonPanel.setPreferredSize(new Dimension(600,150));
 
 
-		String[] algorithmStrings = {"Algoritmo Ricorsivo", "Algoritmo Choco" };
+		Box verticalBtnBox = Box.createVerticalBox();
 
-		algorithmCB = new JComboBox(algorithmStrings);
+
+		Box horizontalBtnBox1 = Box.createHorizontalBox(); // ALGORITMO
+
+		JLabel algoLabel = new JLabel("Algoritmo:");
+		algoLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 100));
+
+		String[] algorithmStrings = {"Ricorsivo", "Choco" };
+		algorithmCB = new JComboBox<String>(algorithmStrings);
 		algorithmCB.setSelectedIndex(0);
 		algorithmCB.addActionListener(new ActionListener() {
 
@@ -312,28 +263,90 @@ public class MainPanel extends JFrame{
 				if(algorithmCB.getSelectedIndex() == 1){
 					DisableLegend();
 					DisableNextNumber();
+					DisableDelay();
+					DisableBackTraking();
 				}
 				else {
 					EnableLegend();
 					EnableNextNumber();
+					EnableDelay();
+					EnableBackTraking();
 				}
 			}
 		});
 
-		String[] dimensionStrings = {"5", "6", "7", "8", "9", "10" };
+		horizontalBtnBox1.add(algoLabel);
+		horizontalBtnBox1.add(Box.createHorizontalStrut(50));
+		horizontalBtnBox1.add(algorithmCB);
 
-		dimensionCB = new JComboBox(dimensionStrings);
+
+		Box horizontalBtnBox2 = Box.createHorizontalBox(); // DIMENSIONE
+
+		JLabel dimLabel = new JLabel("Dimensione griglia:");
+		dimLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 45));
+
+		String[] dimensionStrings = {"5", "6", "7", "8", "9", "10" };
+		dimensionCB = new JComboBox<String>(dimensionStrings);
 		dimensionCB.setSelectedIndex(0);
 
+		horizontalBtnBox2.add(dimLabel);
+		horizontalBtnBox2.add(Box.createHorizontalStrut(50));
+		horizontalBtnBox2.add(dimensionCB);
 
-		playBtn = new JButton("Play/Pausa");
+
+
+		horizontalBtnBox3 = Box.createHorizontalBox(); // TEMPO DELAY
+
+		JLabel delayLabel = new JLabel("Delay:");
+		delayLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 130));
+
+		String[] tempStrings = {"NO DELAY", "SMALL DELAY", "LARGE DELAY" };
+		tempCB = new JComboBox<String>(tempStrings);
+		tempCB.setSelectedIndex(0);
+
+		tempCB.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				switch (tempCB.getSelectedIndex()) {
+				case 0:
+					speed = 0;
+					break;
+				case 1:
+					speed = 10;
+					break;
+				case 2:
+					speed = 100;
+					break;
+				default: 
+					speed = 0;
+					break;
+				}
+			}
+		});
+
+		horizontalBtnBox3.add(delayLabel);
+		horizontalBtnBox3.add(Box.createHorizontalStrut(50));
+		horizontalBtnBox3.add(tempCB);
+
+
+		Box horizontalBtnBox4 = Box.createHorizontalBox(); // PULSANTI
+
+		playBtn = new JButton("Play/Stop");
 		playBtn.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (runThread != null) {
 					synchronized (runThread) {
-
+						if (isChoco) {
+							runThread.stop();
+							runThread = null;
+						} 
+						else {
+							runThread.interrupt();
+						}
+						restartBtn.setEnabled(true);
 					}
 				}
 				else {
@@ -341,62 +354,76 @@ public class MainPanel extends JFrame{
 						@Override
 						public void run() {
 							super.run();
-
 							DIMENSION = new Integer((String)dimensionCB.getSelectedItem());
 							generateGridPanel();
-							//						validate();
-							//						repaint();
+							dimensionCB.setEnabled(false);
+							algorithmCB.setEnabled(false);
+							tempCB.setEnabled(false);
 							statusFieldLabel.setText("In esecuzione");
 							if (algorithmCB.getSelectedIndex() == 0) {
-								recursiveAlgorithm.startRecursiveAlgorithm(DIMENSION);
+								isChoco = false;
+								try {
+									restartBtn.setEnabled(false);
+									recursiveAlgorithm.startRecursiveAlgorithm(DIMENSION);
+									restartBtn.setEnabled(true);
+								} catch (Exception e2) {
+									statusFieldLabel.setText("STOP: INTERROTTO");
+								}
+								restartBtn.setEnabled(true);
 							}
 							else {
+								isChoco = true;
+								restartBtn.setEnabled(false);
 								cspAlgorithm.startAlgorithm(DIMENSION);
+								restartBtn.setEnabled(true);
 							}
+							runThread = null;
+							isChoco = false;
 						}
 					};
 					runThread.start();
 				}
 			}
 		});
-		
-		String[] tempStrings = {"NO DELAY", "SMALL DELAY", "LARGE DELAY" };
 
-		tempCB = new JComboBox<String>(tempStrings);
-		tempCB.setSelectedIndex(0);
-		tempCB.addActionListener(new ActionListener() {
+		restartBtn = new JButton("Ricomincia");
+		restartBtn.setEnabled(false);
+		restartBtn.addActionListener(new ActionListener() {
 
 			@Override
-			public void actionPerformed(ActionEvent e) {
-				
-				switch (tempCB.getSelectedIndex()) {
-				case 0:
-					delay = false;
-					break;
-				case 1:
-					speed = 10;
-					break;
+			public void actionPerformed(ActionEvent arg0) {
+				algorithmCB.setSelectedIndex(0);
+				dimensionCB.setSelectedIndex(0);
+				tempCB.setSelectedIndex(0);
 
-				case 2:
-					speed = 100;
-					break;
+				EnableLegend();
+				EnableNextNumber();
 
-				default: 
-					speed = 100;
-					break;
-				}
-				
-				
+				statusFieldLabel.setText("Fermo");
+				nextNumFieldLabel.setText("1");
+				backTrackFieldLabel.setText("0");
+				algorithmCB.setEnabled(true);
+				dimensionCB.setEnabled(true);
+				tempCB.setEnabled(true);
+				setDimension(5);
+				generateGridPanel();
+				invalidate();
+				validate();
+				repaint();
 			}
 		});
 
+		horizontalBtnBox4.add(restartBtn);
+		horizontalBtnBox4.add(Box.createHorizontalStrut(20));
+		horizontalBtnBox4.add(playBtn);
 
-		buttonPanel.add(restartBtn);
-		buttonPanel.add(algorithmCB);
-		buttonPanel.add(dimensionCB);
-		buttonPanel.add(tempCB);
-		buttonPanel.add(playBtn);
-		//		buttonPanel.add(stepBtn);
+
+		verticalBtnBox.add(horizontalBtnBox1);
+		verticalBtnBox.add(horizontalBtnBox2);
+		verticalBtnBox.add(horizontalBtnBox3);
+		verticalBtnBox.add(horizontalBtnBox4);
+
+		buttonPanel.add(verticalBtnBox);
 
 		add(buttonPanel, BorderLayout.NORTH);
 
@@ -405,17 +432,14 @@ public class MainPanel extends JFrame{
 	public void setStatusFieldLabel(String str) {
 		statusFieldLabel.setText(str);
 	}
-	// ******** main.setStatusFieldLabel("Stop");
 
 	public void setNextNumFieldLabel(String str) {
 		nextNumFieldLabel.setText(str);
 	}
-	// ******** main.setNextNumFieldLabel("1200");
 
 	public void setBackgroundCell(int x, int y, Color c) {
 		grid.paintCell(x, y, c);
 	}
-	// ******** main.setBackgroundCell(0, 0, Color.yellow);
 
 	public void printNumber(String name, int nr) {
 		grid.writeCell(nr, name);
@@ -432,12 +456,10 @@ public class MainPanel extends JFrame{
 
 	public void setSelectedCell(int nr) {
 		setBackgroundCell(nr%DIMENSION, nr/DIMENSION, Color.YELLOW);
-
 	}
 
 	public void setFailCell(int nr) {
 		setBackgroundCell(nr%DIMENSION, nr/DIMENSION, Color.RED);
-
 	}
 
 	public void EnableLegend() {
@@ -458,8 +480,28 @@ public class MainPanel extends JFrame{
 		nextNumFieldLabel.setVisible(false);
 	}
 
+	public void EnableDelay() {
+		horizontalBtnBox3.setVisible(true);
+	}
+
+	public void DisableDelay() {
+		horizontalBtnBox3.setVisible(false);
+	}
+
+	public void EnableBackTraking() {
+		horizontalBox3.setVisible(true);
+	}
+
+	public void DisableBackTraking() {
+		horizontalBox3.setVisible(false);
+	}
+
 	public void setDimension(int d) {
 		DIMENSION = d;
+	}
+
+	public void setBackTrakingLabel(String str) {
+		backTrackFieldLabel.setText(str);
 	}
 
 	public Thread getRunThread() {
@@ -472,10 +514,5 @@ public class MainPanel extends JFrame{
 		synchronized (runThread) {
 			runThread = null;
 		}
-
 	}
-
-	//	public void printInLog(String s) {
-	//		logger.append(s+"\n");
-	//	}
 }
