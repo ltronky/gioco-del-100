@@ -28,7 +28,7 @@ public class GameOf100 {
 		dim = d;
 		Numbr variableList[] = new Numbr[1];
 		variableList[0] = new Numbr(Integer.toString(1), 0);
-
+		backTrack = 0;
 		ui.printNumber("1", 0);
 		long startTime = System.currentTimeMillis();
 		if (executeSubProblem(variableList, 0)) {
